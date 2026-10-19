@@ -129,3 +129,13 @@ body.touch-dragging { user-select: none; -webkit-user-select: none; }
 
 /* İngilizce: bırakma etiketi */
 html[lang="en"] .deck-panel.drop-remove::after { content: '🗑 Drop here to remove'; }
+
+/* Sürüklerken sayfa ve çizelge kendiliğinden kaymasın (otomatik kenar kaydırması JS ile sürer) */
+html:has(body.touch-dragging),
+body.touch-dragging,
+body.touch-dragging .day-scroll,
+body.touch-dragging .deck {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+  touch-action: none;
+}

@@ -858,13 +858,15 @@
         if (Math.hypot(dx, dy) > 10) { clearTimeout(d.timer); touchDrag = null; }
         return;
       }
-      // Kart: yukarı çekiş sürüklemeyi başlatır, aşağı çekiş tepsiyi kapatır, yatay hareket tepsiyi kaydırır
+      // Kart: dikey hareket bizim (sayfa kaymasın; tarayıcı kaydırmayı ilk harekette başlatır), yatay hareket tepsiyi kaydırır
+      if (Math.abs(dy) >= Math.abs(dx) && e.cancelable) e.preventDefault();
+      // Yukarı çekiş sürüklemeyi başlatır, aşağı çekiş tepsiyi kapatır
       if (dy < -10 && Math.abs(dy) > Math.abs(dx)) { d.x = t.clientX; d.y = t.clientY; beginTouchDrag(); }
       else if (dy > 14 && Math.abs(dy) > Math.abs(dx)) { touchDrag = null; ui.setTray(false); return; }
       else if (Math.abs(dx) > 10) { touchDrag = null; return; }
       else return;
     }
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
     moveTouchDrag(t.clientX, t.clientY);
   }, { passive: false });
   document.addEventListener('touchend', () => endTouchDrag(false));
