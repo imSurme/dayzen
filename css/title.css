@@ -1,0 +1,219 @@
+/* ============ Giriş sayfası: canlı gökyüzü + menü ============ */
+.title-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 48;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: grid;
+  place-items: center;
+  --cycle: 40s;
+}
+
+/* Gökyüzü: gündüz tabanı, üstünde şafak/gün batımı ve gece katmanları sırayla belirir */
+.ts-sky {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, #5bb8ff 0%, #bfe6ff 60%, #fff1d6 100%);
+}
+.ts-sky::before, .ts-sky::after { content: ''; position: absolute; inset: 0; }
+.ts-sky::before {
+  background: linear-gradient(180deg, #7a5ea8 0%, #ff8a65 45%, #ffc58a 75%, #ffe6c7 100%);
+  animation: tsGlow var(--cycle) linear infinite;
+}
+.ts-sky::after {
+  background: linear-gradient(180deg, #0c0f33 0%, #232a6b 55%, #4b3f86 100%);
+  animation: tsNight var(--cycle) linear infinite;
+}
+@keyframes tsGlow { 0% { opacity: 0.85; } 10% { opacity: 0; } 32% { opacity: 0; } 42% { opacity: 1; } 52% { opacity: 0; } 86% { opacity: 0; } 96%, 100% { opacity: 0.85; } }
+@keyframes tsNight { 0%, 44% { opacity: 0; } 54%, 80% { opacity: 1; } 92%, 100% { opacity: 0; } }
+
+.ts-stars {
+  position: absolute;
+  inset: 0 0 35% 0;
+  z-index: 1;
+  background:
+    radial-gradient(2px 2px at 8% 20%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 18% 45%, #fff 50%, transparent 51%),
+    radial-gradient(2px 2px at 27% 12%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 39% 33%, #fff 50%, transparent 51%),
+    radial-gradient(2.5px 2.5px at 51% 8%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 63% 40%, #fff 50%, transparent 51%),
+    radial-gradient(2px 2px at 72% 18%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 84% 36%, #fff 50%, transparent 51%),
+    radial-gradient(2px 2px at 93% 14%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 4% 62%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 46% 58%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 88% 60%, #fff 50%, transparent 51%);
+  animation: tsNight var(--cycle) linear infinite, twinkle 3s ease-in-out infinite alternate;
+}
+@keyframes twinkle { to { filter: brightness(1.6); } }
+
+/* Güneş ve ay ufkun altındaki bir merkez etrafında döner */
+.ts-orbit {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 82%;
+  width: 150vmin;
+  height: 150vmin;
+  margin: -75vmin 0 0 -75vmin;
+  animation: tsOrbit var(--cycle) linear infinite;
+}
+@keyframes tsOrbit { from { transform: rotate(-90deg); } to { transform: rotate(270deg); } }
+.ts-sun, .ts-moon {
+  position: absolute;
+  left: 50%;
+  font-size: clamp(54px, 9vmin, 92px);
+  line-height: 1;
+  margin-left: -0.5em;
+  animation: tsUpright var(--cycle) linear infinite;
+}
+.ts-sun { top: -0.5em; filter: drop-shadow(0 0 28px rgba(255, 220, 110, 0.95)); }
+.ts-moon { bottom: -0.5em; filter: drop-shadow(0 0 22px rgba(220, 230, 255, 0.8)); }
+@keyframes tsUpright { from { transform: rotate(90deg); } to { transform: rotate(-270deg); } }
+
+.ts-cloud {
+  position: absolute;
+  z-index: 2;
+  width: 140px;
+  height: 40px;
+  background: #fff;
+  border-radius: 999px;
+  opacity: 0.9;
+  animation: tsDrift 70s linear infinite;
+}
+.ts-cloud::before, .ts-cloud::after { content: ''; position: absolute; background: #fff; border-radius: 50%; }
+.ts-cloud::before { width: 64px; height: 64px; left: 22px; top: -32px; }
+.ts-cloud::after { width: 46px; height: 46px; left: 70px; top: -20px; }
+.ts-cloud.c1 { top: 16%; left: -10%; }
+.ts-cloud.c2 { top: 30%; left: 40%; transform: scale(0.7); animation-duration: 95s; animation-delay: -40s; }
+.ts-cloud.c3 { top: 9%; left: 70%; transform: scale(0.85); animation-duration: 82s; animation-delay: -65s; }
+@keyframes tsDrift { from { translate: -30vw 0; } to { translate: 130vw 0; } }
+
+/* Tepeler: gece kararır */
+.ts-hill {
+  position: absolute;
+  z-index: 3;
+  left: -20%;
+  right: -20%;
+  border: 4px solid var(--ink);
+  border-radius: 50% 50% 0 0;
+  animation: tsHillNight var(--cycle) linear infinite;
+}
+.ts-hill.back { bottom: -12vh; height: 38vh; background: #7ed7a3; left: -40%; right: 10%; }
+.ts-hill.front { bottom: -18vh; height: 34vh; background: #3ccf8e; left: 5%; right: -40%; }
+@keyframes tsHillNight { 0%, 44% { filter: brightness(1); } 54%, 80% { filter: brightness(0.45) saturate(0.8); } 92%, 100% { filter: brightness(1); } }
+
+/* Tepenin üstünde zıplayan karakterler */
+.ts-crowd {
+  position: absolute;
+  z-index: 4;
+  left: 0;
+  right: 0;
+  bottom: 4vh;
+  display: flex;
+  justify-content: center;
+  gap: clamp(4px, 1.6vw, 18px);
+  padding: 0 12px;
+}
+.ts-char {
+  display: grid;
+  place-items: center;
+  width: clamp(38px, 5.4vw, 60px);
+  height: clamp(38px, 5.4vw, 60px);
+  border-radius: 50%;
+  border: 3px solid var(--ink);
+  background: radial-gradient(circle at 35% 30%, #fff, #ffe08a);
+  box-shadow: 0 4px 0 var(--ink);
+  font-size: clamp(20px, 3vw, 32px);
+  animation: tsHop 1.8s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.18s);
+}
+.ts-char.locked { filter: grayscale(1); opacity: 0.6; }
+@keyframes tsHop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+/* İçerik */
+.ts-content {
+  position: relative;
+  z-index: 5;
+  width: min(460px, calc(100vw - 32px));
+  padding: 4vh 0 calc(14vh + 40px);
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 6px;
+}
+.ts-logo { width: clamp(110px, 18vh, 170px); height: clamp(110px, 18vh, 170px); animation: logoBob 3s ease-in-out infinite; }
+.ts-logo .logo-svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 5px 0 rgba(43, 33, 64, 0.35)); }
+.ts-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.6rem, 7vh, 4.2rem);
+  line-height: 1;
+  color: #fff;
+  letter-spacing: 1px;
+  paint-order: stroke fill;
+  -webkit-text-stroke: 10px var(--ink);
+  filter: drop-shadow(0 6px 0 rgba(43, 33, 64, 0.35));
+  margin-top: 4px;
+}
+.ts-title b { color: var(--gold); }
+.ts-tagline {
+  margin: 8px 0 14px;
+  font-weight: 900;
+  font-size: 1rem;
+  background: rgba(253, 253, 255, 0.92);
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  padding: 4px 16px;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.ts-buttons { display: grid; gap: 10px; width: min(340px, 100%); }
+.ts-play { font-size: 1.6rem !important; padding: 14px 18px !important; animation: glow 1.8s ease-in-out infinite; }
+.ts-play small { display: block; font-family: var(--font-body); font-size: 0.82rem; font-weight: 800; opacity: 0.95; margin-top: 2px; }
+.ts-new { background: var(--paper); }
+.ts-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; }
+.ts-row .btn { background: var(--paper); font-size: 0.92rem; padding: 9px 10px; }
+.ts-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 14px; }
+.ts-stats span {
+  background: rgba(253, 253, 255, 0.92);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+.ts-stats b { font-family: var(--font-display); }
+.ts-foot { margin: 6px 0 0; font-size: 0.78rem; font-weight: 900; color: var(--ink); background: rgba(253, 253, 255, 0.7); border-radius: 999px; padding: 1px 10px; }
+
+/* Giriş sayfasının üstünde açılan ekranlar (karakter seçimi vb.) */
+.title-screen:not(.hidden) ~ #screen { background: rgba(30, 20, 50, 0.35); }
+
+@media (max-width: 760px) {
+  .ts-content { padding-top: 3vh; }
+  .ts-play { font-size: 1.35rem !important; }
+  .ts-row .btn { font-size: 0.85rem; }
+  .ts-crowd { bottom: 3vh; }
+}
+@media (max-height: 640px) {
+  .ts-logo { width: 90px; height: 90px; }
+  .ts-title { font-size: 2.3rem; }
+  .ts-content { padding-bottom: 120px; }
+}
+
+/* Dil seçici (sağ üst köşe) */
+.ts-lang {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top, 0px));
+  right: max(12px, env(safe-area-inset-right, 0px));
+  z-index: 6;
+  flex-wrap: nowrap;
+  background: rgba(253, 253, 255, 0.92);
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  padding: 3px;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.ts-lang button { border-radius: 999px; padding: 3px 10px; font-size: 0.82rem; }

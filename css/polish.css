@@ -1,0 +1,153 @@
+/* ============ Planlama tahmini, ayarlar ve eğitim ============ */
+
+/* Tahmin şeridi */
+.forecast {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 16px 0;
+  padding: 6px 10px;
+  border: 2.5px dashed rgba(43, 33, 64, 0.35);
+  border-radius: 12px;
+  background: var(--violet-soft);
+  font-size: 0.8rem;
+  min-height: 36px;
+  flex: none;
+}
+.forecast:empty { display: none; }
+.fc-label { font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; margin-right: 2px; }
+.fc-item { background: var(--white); border: 2px solid var(--ink); border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+.fc-item b { font-family: var(--font-display); font-weight: 600; }
+.fc-stars { color: var(--gold); -webkit-text-stroke: 1px var(--ink); paint-order: stroke fill; letter-spacing: 1px; }
+.fc-warn { background: var(--warn-soft); }
+.fc-note { margin-left: auto; color: var(--ink-soft); font-size: 0.7rem; font-style: italic; }
+.fc-off { color: var(--ink-soft); font-size: 0.78rem; }
+body.simulating .forecast { display: none; }
+
+/* Blok üstü tahmin etiketi */
+.block-fc {
+  position: absolute;
+  right: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--gold-soft);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 0 7px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  white-space: nowrap;
+  cursor: help;
+}
+.block-fc.good { background: var(--good-soft); }
+.block-fc.warn { background: #ffe1c2; }
+.block-fc.fail { background: var(--bad-soft-2); color: var(--bad); }
+.block.short .block-fc { font-size: 0.62rem; padding: 0 5px; border-width: 1.5px; }
+.block.locked .block-fc { right: 26px; }
+body.simulating .block-fc { display: none; }
+
+/* Göstergelerdeki gün sonu tahmini */
+.meter-fc { color: var(--ink-soft); font-size: 0.75rem; font-weight: 900; }
+body.simulating .meter-fc { display: none; }
+
+/* Hedeflerde tahmin */
+.goals-note { font-family: var(--font-body); font-size: 0.68rem; color: var(--ink-soft); font-weight: 800; }
+.goal-stars.pred { opacity: 0.55; }
+.goal.pred-yes { background: #eefaf3; }
+.goal.pred-yes .goal-mark { color: var(--gold); opacity: 0.6; -webkit-text-stroke: 1px var(--ink); paint-order: stroke fill; }
+
+/* Ayarlar */
+.head-spacer { width: 70px; }
+.set-list { display: grid; gap: 10px; }
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--white);
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  box-shadow: 0 4px 0 var(--ink);
+  padding: 12px 14px;
+  cursor: pointer;
+}
+.set-icon { font-size: 1.8rem; flex: none; }
+.set-text { flex: 1; display: grid; }
+.set-text b { font-family: var(--font-display); font-size: 1.05rem; }
+.set-text small { color: var(--ink-soft); font-size: 0.8rem; }
+.set-row input { position: absolute; opacity: 0; pointer-events: none; }
+.switch {
+  position: relative;
+  width: 54px;
+  height: 30px;
+  flex: none;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: var(--locked-2);
+  transition: background 0.2s;
+}
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2.5px solid var(--ink);
+  background: var(--white);
+  transition: transform 0.2s;
+}
+.set-row input:checked + .switch { background: #4cd18a; }
+.set-row input:checked + .switch::after { transform: translateX(24px); }
+.set-row input:focus-visible + .switch { outline: 3px solid var(--gold); outline-offset: 2px; }
+.set-actions { display: flex; justify-content: center; margin-top: 18px; }
+
+/* Eğitim */
+.tut-spot {
+  position: fixed;
+  z-index: 45;
+  display: none;
+  border-radius: 18px;
+  border: 3px solid var(--gold);
+  box-shadow: 0 0 0 9999px rgba(30, 20, 50, 0.5), 0 0 18px 4px rgba(255, 200, 61, 0.8);
+  pointer-events: none;
+  transition: left 0.25s, top 0.25s, width 0.25s, height 0.25s;
+}
+.tut-coach {
+  position: fixed;
+  z-index: 46;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  width: min(560px, calc(100vw - 32px));
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 0 8px 0 var(--ink);
+  padding: 14px 16px;
+}
+.tut-coach.at-top { bottom: auto; top: 20px; }
+.tut-coach.center { bottom: auto; top: 50%; transform: translate(-50%, -50%); }
+.tut-coach.pop { animation: tutPop 0.35s cubic-bezier(0.25, 1.4, 0.5, 1); }
+@keyframes tutPop { from { opacity: 0; scale: 0.9; } }
+.tut-face {
+  width: 54px;
+  height: 54px;
+  flex: none;
+  border-radius: 50%;
+  border: 3px solid var(--ink);
+  background: radial-gradient(circle at 35% 30%, #fff, #ffe08a);
+  display: grid;
+  place-items: center;
+  font-size: 1.8rem;
+}
+.tut-body { flex: 1; }
+.tut-text { font-size: 0.95rem; line-height: 1.45; }
+.tut-actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.tut-count { color: var(--ink-soft); font-size: 0.8rem; font-weight: 900; margin-right: auto; }
+.block:has(.block-fc) { padding-right: 104px; }
+.block.short:has(.block-fc) { padding-right: 92px; }

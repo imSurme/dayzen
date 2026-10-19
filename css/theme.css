@@ -1,0 +1,108 @@
+/* ============ Dayzen — renk ve tipografi sistemi (en son yüklenir) ============
+   Kimlik: oyunun tek cesur yeri gökyüzü ve güneş-saat logosu. Paneller onun önünde bulut beyazı
+   yüzeyler; turuncu yalnızca ana eylemde, altın yalnızca puan/yıldızda. Bilgi kutuları düz,
+   dokunulacak şeyler (kart, blok, buton) kalın konturlu. Tek bilinçli görünüm: tema değişmez. */
+:root {
+  /* Mürekkep ve yüzeyler (çivit tonlu nötrler) */
+  --ink: #2a2447;
+  --ink-soft: #5d5a7c;
+  --paper: #fdfdff;          /* bulut beyazı panel */
+  --paper-2: #eef3fc;        /* gökyüzü tonlu ikincil yüzey */
+  --white: #ffffff;
+  --line-soft: rgba(42, 36, 71, 0.12);
+  --line-mid: rgba(42, 36, 71, 0.26);
+
+  /* Vurgu: güneş (ana eylem) ve altın (puan, yıldız) */
+  --orange: #ff7a3d;
+  --gold: #ffc83d;
+
+  /* Anlamsal tonlar (vurgudan ayrı) */
+  --good: #1f9e60;   --good-ink: #12754a; --good-soft: #dcf5e8;
+  --bad: #e5484d;    --bad-ink: #b0262f;  --bad-soft: #ffe3e6; --bad-soft-2: #ffd2d6;
+  --warn-soft: #fff0dc;
+  --gold-soft: #fff3c4; --gold-ink: #8a6200;
+  --mission-soft: #ffe8cc;
+  --violet-soft: #ece9fb;
+  --locked: #eceff5; --locked-2: #dde1ea;
+
+  /* Tipografi ölçeği */
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.85rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.2rem;
+  --fs-xl: 1.6rem;
+  --fs-2xl: 2.2rem;
+  color-scheme: light;
+}
+
+/* Sayfa zemini: hafif bir sabah gökyüzü (oyunun dünyası), üstünde ince nokta dokusu */
+body {
+  background:
+    radial-gradient(circle at 1px 1px, rgba(42, 36, 71, 0.07) 1.2px, transparent 0) 0 0 / 22px 22px,
+    linear-gradient(180deg, #d6ecff 0%, #eef4ff 45%, #fff1e2 100%) fixed;
+  color: var(--ink);
+}
+
+/* ---------- Başlıklar: emoji yerine tipografiyle ayrışır ---------- */
+h1, h2, h3 { text-wrap: balance; }
+.panel-head h2 { font-size: var(--fs-lg); letter-spacing: 0.01em; }
+.goals-head h3,
+.life-head h3,
+.log-wrap summary,
+.res-box h3,
+.rule-sec h3,
+.sub-title,
+.ev-group,
+.di-cols .res-box h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+.res-box h3 { margin-bottom: 8px; }
+.screen-head h2, .screen-title { font-size: var(--fs-xl); }
+.rules-title { font-size: var(--fs-xl); }
+
+/* Rakamlar hizalı dursun */
+.pill, .ms-val, .life-top b, .meter-top b, .fc-item, .tl-time, .res-score span, .wbar-val, .cz-stats b, .ts-stats b {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Çizelge blokları: kenar şeridi yerine kategori tonu ---------- */
+.block::before { display: none; }
+.block {
+  padding-left: 8px;
+  background: color-mix(in srgb, var(--cat) 15%, var(--paper));
+  border-color: color-mix(in srgb, var(--cat) 45%, var(--ink));
+}
+.block-icon { background: var(--cat); border-color: color-mix(in srgb, var(--cat) 40%, var(--ink)); }
+.block.locked {
+  background-color: color-mix(in srgb, var(--cat) 9%, var(--paper));
+  background-image: repeating-linear-gradient(45deg, transparent 0 9px, rgba(42, 36, 71, 0.05) 9px 18px);
+}
+.block.chore { background-image: none; background-color: color-mix(in srgb, var(--bad) 12%, var(--paper)); }
+
+/* Sürüklenen kart da aynı dili konuşsun */
+.touch-ghost { border-left-width: 3px; background: color-mix(in srgb, var(--cat) 16%, var(--white)); }
+
+/* ---------- Yüzeyler ---------- */
+.panel { background: var(--paper); }
+.goals, .life-box { background: var(--paper-2); }
+.forecast { background: var(--violet-soft); }
+.hint { color: var(--ink-soft); }
+
+/* Odak görünür kalsın */
+.card:focus-visible, .block:focus-visible, .ts-play:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+/* ---------- Üst bar: güneş/ay yalnız gün akarken görünür; o sırada logo ve kutucuklar geri çekilir ---------- */
+.sun, .moon { opacity: 0; transition: opacity 0.8s ease; }
+body.simulating .sun, body.simulating .moon { opacity: 1; }
+.hud-inner .logo, .hud-right > * { transition: opacity 0.6s ease, filter 0.6s ease; }
+body.simulating .hud-inner .logo,
+body.simulating .hud-right > * { opacity: 0.45; filter: saturate(0.6); }
+body.simulating .hud-right > *:hover { opacity: 1; filter: none; }
+@media (prefers-reduced-motion: reduce) {
+  .sun, .moon, .hud-inner .logo, .hud-right > * { transition: none; }
+}

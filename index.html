@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dayzen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/campaign.css">
+  <link rel="stylesheet" href="css/polish.css">
+  <link rel="stylesheet" href="css/refine.css">
+  <link rel="stylesheet" href="css/challenge.css">
+  <link rel="stylesheet" href="css/cardzoom.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/title.css">
+  <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+  <header class="hud" id="hud">
+    <div class="sky" aria-hidden="true">
+      <div class="night-stars"></div>
+      <div class="cloud c1"></div>
+      <div class="cloud c2"></div>
+      <div class="cloud c3"></div>
+      <div class="sun" id="sun">☀️</div>
+      <div class="moon" id="moon">🌙</div>
+    </div>
+    <div class="hud-inner">
+      <div class="logo"><span class="logo-mark" id="logoMark"></span><span class="logo-text" data-i18n-skip>Day<b>zen</b></span></div>
+      <div class="hud-right">
+        <div class="pill pill-day" id="dayPill" title="Haftanın günü">📅 Pzt 1/7</div>
+        <div class="pill pill-hearts" id="heartsPill" title="Canların">❤️❤️❤️</div>
+        <div class="pill" title="Saat">🕗 <span id="clock">08:00</span></div>
+        <div class="pill pill-score" title="Bugünkü puan">⭐ <span id="scoreVal">0</span></div>
+        <div class="pill pill-wallet" title="Yıldızların (kilit açmak için)">🌟 <span id="walletVal">0</span></div>
+        <button class="icon-btn" id="menuBtn" title="Ana menü" aria-label="Ana menü">🏠</button>
+        <button class="icon-btn" data-open-rules title="Kurallar" aria-label="Kurallar">📖</button>
+        <button class="icon-btn" id="settingsBtn" title="Ayarlar" aria-label="Ayarlar">⚙️</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="board">
+    <section class="panel deck-panel">
+      <div class="tray-handle" id="trayHandle" role="button" aria-label="Kart tepsisini aç/kapat"><span></span></div>
+      <div class="panel-head">
+        <h2>Elindeki Kartlar</h2>
+        <button id="redrawBtn" class="btn small" title="Yerleştirmediğin kartları değiştir">🔄 Yeniden çek <b id="redrawLeft">1</b></button>
+      </div>
+      <p class="hint"><span class="hint-desk">✋ Kartı çizelgeye sürükle · 🔍 detay için karta tıkla</span><span class="hint-mob">✋ Kartı yukarı, çizelgeye sürükle · 🔍 detay için dokun</span></p>
+      <div class="deck" id="pool"></div>
+    </section>
+
+    <section class="panel day-panel">
+      <div class="panel-head">
+        <h2 id="dayTitle">🌱 Pazartesi</h2>
+        <div class="day-head-actions">
+          <button id="randomBtn" class="btn small random-btn" title="Elindeki kartları çizelgeye rastgele yerleştir">🎲 Rastgele</button>
+          <button id="clearBtn" class="btn small clear-btn" title="Yerleştirdiğin kartları kaldır">🗑 Temizle</button>
+          <button class="scenario-tag" id="scenarioTag" title="Günün detayları">Haftanın İlk Günü</button>
+        </div>
+      </div>
+      <div class="day-banner hidden" id="dayBanner"></div>
+      <div class="day-bar">
+        <div class="bed-control" id="bedControl" role="group" aria-label="Yatış saati">
+          <span>🛏️ Yatış</span>
+          <button data-bed="28">22:00</button><button data-bed="30">23:00</button><button data-bed="32">24:00</button>
+        </div>
+        <div class="forecast" id="forecast"></div>
+        <div class="day-meta">
+          <span class="tag">Dolu <b id="plannedTime">0 sa</b></span>
+          <span class="tag">Boş <b id="freeTime">16 sa</b></span>
+        </div>
+      </div>
+      <div class="day-scroll"><div id="timeline" class="timeline"></div></div>
+    </section>
+
+    <aside class="panel hero-panel">
+      <div class="hero">
+        <div class="avatar" id="avatar" data-mood="good"><span id="face">😄</span><span class="avatar-badge" id="charBadge">🎓</span></div>
+        <div class="bubble" id="bubble">Selam! Bugünümü planlar mısın?</div>
+      </div>
+
+      <div class="mission-box" id="missionBox"></div>
+
+      <div class="life-box">
+        <div class="life-head"><h3>Yaşam Dengesi</h3><small id="lifeNote"></small></div>
+        <div class="life-grid" id="lifeGrid"></div>
+      </div>
+
+      <div class="meters">
+        <div class="meter energy">
+          <div class="meter-icon">⚡</div>
+          <div class="meter-body">
+            <div class="meter-top"><span>Enerji</span><span><b id="energyVal">80</b> <small class="meter-fc" id="energyFc"></small></span></div>
+            <div class="meter-track">
+              <div class="meter-fill" id="energyBar"></div>
+              <span class="tick" style="left:30%"></span><span class="tick" style="left:60%"></span>
+            </div>
+          </div>
+        </div>
+        <div class="meter stress">
+          <div class="meter-icon">😰</div>
+          <div class="meter-body">
+            <div class="meter-top"><span>Stres</span><span><b id="stressVal">20</b> <small class="meter-fc" id="stressFc"></small></span></div>
+            <div class="meter-track">
+              <div class="meter-fill" id="stressBar"></div>
+              <span class="tick" style="left:50%"></span><span class="tick" style="left:80%"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="goals">
+        <div class="goals-head"><h3>Günün Hedefleri <small class="goals-note" id="goalsNote"></small></h3><span class="goal-stars" id="goalStars">☆☆☆</span></div>
+        <ul id="goals"></ul>
+      </div>
+
+      <div class="controls">
+        <button id="startBtn" class="btn primary big">▶ Günü Başlat</button>
+        <div class="sim-controls">
+          <button id="speedBtn" class="btn small">Hız ×1</button>
+          <button id="skipBtn" class="btn small">Sonuca atla »</button>
+        </div>
+      </div>
+
+      <details class="log-wrap" id="logWrap">
+        <summary>Olay Günlüğü</summary>
+        <ol id="log" class="log"><li class="log-empty">Günü başlatınca olanlar burada akacak.</li></ol>
+      </details>
+    </aside>
+  </main>
+
+  <!-- Telefonda paneller arasında geçiş -->
+  <nav class="mobile-tabs" id="mobileTabs" aria-label="Paneller">
+    <button data-mtab="day">🗓️<span>Gün</span></button>
+    <button data-mtab="hero">🙂<span>Durum</span></button>
+    <button class="mt-start" id="mobileStart">▶<span>Başlat</span></button>
+  </nav>
+
+  <!-- Giriş sayfası: canlı gökyüzü sahnesi + menü -->
+  <div id="title" class="title-screen" aria-label="Giriş">
+    <div class="ts-sky" aria-hidden="true">
+      <div class="ts-stars"></div>
+      <div class="ts-orbit"><span class="ts-sun">☀️</span><span class="ts-moon">🌙</span></div>
+      <div class="ts-cloud c1"></div>
+      <div class="ts-cloud c2"></div>
+      <div class="ts-cloud c3"></div>
+      <div class="ts-hill back"></div>
+      <div class="ts-hill front"></div>
+      <div class="ts-crowd" id="titleCrowd"></div>
+    </div>
+    <div class="ts-content" id="titleContent"></div>
+  </div>
+
+  <!-- Menü, karakter seçimi, koleksiyon, gün tanıtımı, olaylar, hafta sonu: hepsi bu katmanda -->
+  <div id="screen" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="screen-card" id="screenCard"></div>
+  </div>
+
+  <!-- Büyük kart (detay) -->
+  <div id="cardZoom" class="overlay hidden card-zoom-layer" role="dialog" aria-modal="true" aria-label="Kart detayı">
+    <div class="card-zoom" id="cardZoomCard"></div>
+  </div>
+
+  <!-- Gün sonu ekranı -->
+  <div id="resultModal" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Gün sonu değerlendirmesi">
+    <div class="result-card" id="resultBody"></div>
+  </div>
+
+  <!-- Kurallar penceresi -->
+  <div id="rules" class="overlay hidden rules-layer" role="dialog" aria-modal="true" aria-label="Kurallar">
+    <div class="rules-card">
+      <button class="close-btn" data-close aria-label="Kapat">✕</button>
+      <h2 class="rules-title">Kurallar</h2>
+
+      <section class="rule-sec goal-sec">
+        <h3>Amaç: Haftayı kurtar</h3>
+        <p>Her karakterin bir <b>haftalık ana görevi</b> var (örneğin “Cuma’ya kadar sınava hazırlan”). Görevi süresinde bitirir ve canın tükenmeden haftayı tamamlarsan <b>hafta kurtarılır</b>.</p>
+        <div class="tips-grid">
+          <div class="tip bad"><span>💥</span><div><b>Kriz: −1 ❤️</b>Yaşam dengesinden biri sıfıra düşerse</div></div>
+          <div class="tip bad"><span>📌</span><div><b>Yapılacak kaçtı: −1 ❤️</b>Haftada ilk kaçırma uyarı, sonrakiler can götürür</div></div>
+          <div class="tip bad"><span>😵</span><div><b>Tükenmişlik: −1 ❤️</b>Stres 100’e ulaşırsa</div></div>
+          <div class="tip bad"><span>⏳</span><div><b>Görev kaçtı: −2 ❤️</b>Ana görev süresinde bitmezse</div></div>
+        </div>
+      </section>
+
+      <section class="rule-sec">
+        <h3>Yaşam dengesi</h3>
+        <p><b>💼 İş, 💚 Sağlık, 👫 Sosyal, 🏠 Ev</b> her gece azalır. Kartlar kendi alanını doldurur; yorgun ve stresliyken yaptığın iş daha az sayılır.
+          25’in altına düşen alan ertesi sabah seni yavaşlatır (daha az enerji ya da daha çok stres).</p>
+      </section>
+
+      <section class="rule-sec">
+        <h3>Yapılacaklar</h3>
+        <p>Her gün 1–2 yapılacak iş gelir (fatura, kargo, ilaç gibi). Kartı her zaman elindedir, <b>yerini sen seçersin</b>; çizelgedeki <b>kırmızı kesikli çizgi</b> son saatini gösterir.
+          Son saatten önce <b>bitirilmezse</b> (geç biterse, başarısız olursa ya da bir olay iptal ederse):</p>
+        <div class="end-bonus">
+          <span class="eb bad">O gün <b>−25 ⭐</b></span>
+          <span class="eb bad">İlgili yaşam alanı o gece <b>−20</b></span>
+          <span class="eb">Haftadaki ilk kaçırma <b>uyarı</b></span>
+          <span class="eb bad">Sonraki her kaçırma <b>−1 ❤️</b></span>
+        </div>
+        <p class="rule-hint" style="margin-top:8px">🔒 <b>Kilitli bloklar</b> ise karakterinin ya da günün <b>sabit programı</b>dır: saati bellidir, kendiliğinden yapılır, taşınamaz ve cezası yoktur.</p>
+      </section>
+
+      <section class="rule-sec">
+        <h3>Temel kural</h3>
+        <p>Her görev <b>zaman</b> harcar, <b>⭐ puan</b> verir, <b>⚡ enerjini</b> ve <b>😰 stresini</b> değiştirir.
+          Boş bıraktığın her 30 dakika seni biraz dinlendirir.</p>
+      </section>
+
+      <section class="rule-sec">
+        <h3>Verimin</h3>
+        <p class="rule-hint">Bir görevden alacağın puan, o anki enerjine ve stresine bağlı.</p>
+        <div class="scale">
+          <span class="scale-label">⚡ Enerji</span>
+          <div class="scale-bar">
+            <span class="seg bad" style="flex:30">%50</span>
+            <span class="seg mid" style="flex:30">%80</span>
+            <span class="seg good" style="flex:40">Tam puan</span>
+          </div>
+          <div class="scale-ticks"><span>0</span><span style="left:30%">30</span><span style="left:60%">60</span><span style="left:100%">100</span></div>
+        </div>
+        <div class="scale">
+          <span class="scale-label">😰 Stres</span>
+          <div class="scale-bar">
+            <span class="seg good" style="flex:50">Tam puan</span>
+            <span class="seg mid" style="flex:30">%85</span>
+            <span class="seg bad" style="flex:20">%60</span>
+          </div>
+          <div class="scale-ticks"><span>0</span><span style="left:50%">50</span><span style="left:80%">80</span><span style="left:100%">100</span></div>
+        </div>
+        <p class="rule-warn">⛔ Enerjin biterse (≤ 5) ya da stresin tavan yaparsa (≥ 95) görevler <b>başarısız</b> olur.</p>
+      </section>
+
+      <section class="rule-sec">
+        <h3>Akıllı sıralama</h3>
+        <div class="tips-grid">
+          <div class="tip good"><span>🌅</span><div><b>Sabah odaklan</b>Odak görevleri 12:00’den önce ×1.2</div></div>
+          <div class="tip good"><span>🍽️</span><div><b>Vaktinde ye</b>Öğle 12–14, akşam 18–21: +10 ⭐</div></div>
+          <div class="tip good"><span>🚿</span><div><b>Spordan sonra duş</b>+5 ⭐ ve ekstra stres düşüşü</div></div>
+          <div class="tip bad"><span>😪</span><div><b>Yemekten hemen sonra iş</b>Enerji −5</div></div>
+          <div class="tip bad"><span>🔁</span><div><b>Aynı türden 3 görev üst üste</b>Puan ×0.7</div></div>
+          <div class="tip bad"><span>🌙</span><div><b>22:00’den sonra iş</b>Puan ×0.8, stres artar</div></div>
+        </div>
+      </section>
+
+      <section class="rule-sec">
+        <h3>Hafta</h3>
+        <div class="tips-grid">
+          <div class="tip"><span>🃏</span><div><b>Hepsi sığmaz</b>Her sabah 10 kart çekersin; hangilerini yapacağını seç. 1 kez yeniden çekebilirsin.</div></div>
+          <div class="tip"><span>🔒</span><div><b>Ön koşul</b>Bazı kartlar yeterli enerji ya da düşük stres ister; yoksa yapılamaz.</div></div>
+          <div class="tip"><span>🔁</span><div><b>Gün devreder</b>Günü nasıl bitirirsen ertesi sabah ona yakın başlarsın.</div></div>
+          <div class="tip"><span>🛏️</span><div><b>Erken yat</b>22:00 → yarın +20 ⚡ −10 😰 · 23:00 → +10 ⚡ −5 😰</div></div>
+          <div class="tip"><span>⏪</span><div><b>Geri sarma sınırlı</b>Bir günü baştan oynamak haftalık hak harcar.</div></div>
+          <div class="tip"><span>🎯</span><div><b>3 hedef = 3 yıldız</b>Yıldızlarla yeni karakter, kart ve yetenek açılır.</div></div>
+        </div>
+      </section>
+
+      <section class="rule-sec">
+        <h3>Gün sonu bonusları</h3>
+        <div class="end-bonus">
+          <span class="eb good">😌 Sakin bitir <b>+40</b></span>
+          <span class="eb good">🔋 Enerjin kalsın <b>+20</b></span>
+          <span class="eb good">🌈 5+ farklı tür <b>+30</b></span>
+          <span class="eb bad">🍽️ Hiç yemek yeme <b>−40</b></span>
+        </div>
+      </section>
+
+      <button class="btn primary big rules-ok" data-close>Anladım 👍</button>
+    </div>
+  </div>
+
+  <canvas id="confetti" aria-hidden="true"></canvas>
+  <div id="toast" class="toast" role="status"></div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/logo.js"></script>
+  <script src="js/events.js"></script>
+  <script src="js/challenge.js"></script>
+  <script src="js/lang-en.js"></script>
+  <script src="js/simulation.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/campaign.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/results.js"></script>
+  <script src="js/screens.js"></script>
+  <script src="js/tutorial.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

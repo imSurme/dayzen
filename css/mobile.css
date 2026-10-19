@@ -1,0 +1,131 @@
+/* ============ Telefon düzeni: çizelge + alttaki kart tepsisi aynı ekranda ============ */
+
+/* Dokunmatik sürükleme: parmağı takip eden kart */
+.touch-ghost {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 80;
+  pointer-events: none;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  align-items: center;
+  min-width: 150px;
+  max-width: 220px;
+  padding: 6px 12px 6px 8px;
+  margin: -78px 0 0 -40px; /* parmağın üstünde dursun, altını kapatmasın */
+  background: var(--white);
+  border: 3px solid var(--ink);
+  border-left: 8px solid var(--cat);
+  border-radius: 14px;
+  box-shadow: 0 8px 0 rgba(43, 33, 64, 0.35), 0 12px 24px rgba(43, 33, 64, 0.25);
+  rotate: -3deg;
+}
+.touch-ghost span { grid-row: span 2; font-size: 1.6rem; }
+.touch-ghost b { font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.touch-ghost small { font-size: 0.72rem; color: var(--ink-soft); font-weight: 900; }
+body.touch-dragging { user-select: none; -webkit-user-select: none; }
+.card, .block { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+
+@media (max-width: 760px) {
+  :root { --tabbar-h: 76px; --tray-h: 196px; }
+
+  /* Sekmeler: Gün, Durum, Başlat */
+  .mobile-tabs { grid-template-columns: 1fr 1fr 1.3fr; }
+
+  /* Gün sekmesi: çizelge + tepsi; Durum sekmesi: sağ panel */
+  body[data-mtab='day'] { padding-bottom: calc(var(--tabbar-h) + var(--tray-h) + 12px); }
+  body[data-mtab='day'] .deck-panel {
+    display: flex !important;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: var(--tabbar-h);
+    height: var(--tray-h);
+    z-index: 39;
+    border-radius: 20px 20px 0 0;
+    border-bottom: none;
+    box-shadow: 0 -5px 0 rgba(43, 33, 64, 0.18);
+    transition: background 0.15s;
+  }
+  body[data-mtab='hero'] .deck-panel { display: none !important; }
+
+  .deck-panel .panel-head { padding: 6px 12px 4px; border-bottom: none; }
+  .deck-panel .panel-head h2 { font-size: 0.98rem; }
+  .deck-panel .hint { margin: 0 12px 2px; font-size: 0.72rem; }
+  .deck-panel #redrawBtn { font-size: 0.78rem; padding: 3px 8px; box-shadow: 0 2px 0 var(--ink); }
+
+  /* Kartlar yana kayan tek sıra */
+  .deck {
+    display: flex !important;
+    flex-direction: row;
+    gap: 8px;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    padding: 4px 12px 10px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+  .deck .card {
+    flex: 0 0 132px;
+    scroll-snap-align: start;
+    touch-action: pan-x; /* yatay kaydırma tarayıcıda, dikey çekiş sürükleme için bizde */
+    animation: none;
+  }
+  .deck .card:hover { transform: none; }
+  .deck .card .card-desc { display: none; }
+  .deck .card .card-art { height: 46px; }
+  .deck .card .card-icon { font-size: 1.4rem; }
+  .deck .card .card-body { padding: 5px 7px 6px; }
+  .deck .card .card-name { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .deck .card .card-extras { flex-wrap: nowrap; overflow: hidden; }
+
+  /* Bloğu tepsiye geri bırakınca kaldırılır */
+  .deck-panel.drop-remove { background: var(--bad-soft); }
+  .deck-panel.drop-remove::after {
+    content: '🗑 Bırak: plandan kaldır';
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: var(--bad);
+    background: rgba(255, 224, 227, 0.85);
+    border-radius: 20px 20px 0 0;
+  }
+  body.dragging-card .deck { opacity: 0.6; }
+
+  /* Bloklar: basılı tutunca taşınır, sayfa kaydırması bloklar üstünde de çalışır */
+  .block { touch-action: pan-y; }
+  .block.dragging { opacity: 0.35; }
+  .block-remove { opacity: 1; }
+
+  /* Diğer katmanlar tepsinin üstünde dursun */
+  body[data-mtab='day'] .toast { bottom: calc(var(--tabbar-h) + var(--tray-h) + 12px); }
+  .tut-coach, .tut-coach.at-top { top: 10px; bottom: auto; }
+  .tut-coach.center { top: 50%; }
+  body[data-mtab='day'] .hero-panel .controls { bottom: var(--tabbar-h); }
+}
+
+/* ---------- Açılıp kapanan kart tepsisi ---------- */
+.tray-handle { display: none; }
+@media (max-width: 760px) {
+  :root { --tray-peek: 52px; }
+  .tray-handle { display: flex; justify-content: center; padding: 7px 0 1px; cursor: grab; touch-action: none; flex: none; }
+  .tray-handle span { width: 48px; height: 5px; border-radius: 999px; background: var(--line-mid); }
+  .deck-panel .panel-head { touch-action: none; }
+  body[data-mtab='day'] .deck-panel { transition: transform 0.32s cubic-bezier(0.2, 0.9, 0.3, 1); }
+  body.tray-collapsed[data-mtab='day'] .deck-panel { transform: translateY(calc(var(--tray-h) - var(--tray-peek))); }
+  body.tray-collapsed[data-mtab='day'] { padding-bottom: calc(var(--tabbar-h) + var(--tray-peek) + 12px); }
+  body.tray-collapsed .deck-panel .hint,
+  body.tray-collapsed .deck-panel #redrawBtn { visibility: hidden; }
+  body.tray-collapsed .deck-panel .panel-head h2::after { content: ' ▴'; color: var(--ink-soft); }
+  body.tray-collapsed[data-mtab='day'] .toast { bottom: calc(var(--tabbar-h) + var(--tray-peek) + 12px); }
+}
+
+/* İngilizce: bırakma etiketi */
+html[lang="en"] .deck-panel.drop-remove::after { content: '🗑 Drop here to remove'; }
