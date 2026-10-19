@@ -514,7 +514,7 @@
         e.dataTransfer.effectAllowed = 'move';
       });
       card.addEventListener('dragend', () => { drag = null; hideGhost(); });
-      attachTouchDrag(card, () => (OG.remainingUses(t.id) > 0 ? { taskId: t.id, grabOffset: 0 } : null), false);
+      attachTouchDrag(card, () => (OG.remainingUses(t.id) > 0 ? { taskId: t.id, grabOffset: 0 } : null));
       // Tıklayınca kart büyüyüp detaylarını gösterir; yerleştirmek için sürüklenir
       card.addEventListener('click', () => {
         if (Date.now() < suppressClickUntil) return;
@@ -584,7 +584,7 @@
     let action = '';
     if (t.kind !== 'fixed' && OG.state.hand.includes(t.id)) {
       if (left <= 0) action = '<span class="cz-hint">Bu kartın bugünkü hakkı doldu.</span>';
-      else if (isMobile()) action = '<span class="cz-hint">✋ Kartı alttaki tepsiden yukarı, çizelgeye sürükle</span>';
+      else if (isMobile()) action = '<span class="cz-hint">✋ Karta basılı tut, sonra çizelgeye sürükle</span>';
       else action = '<span class="cz-hint">✋ Bu kartı tutup çizelgeye sürükleyebilirsin</span>';
     }
     box.innerHTML = `
@@ -736,27 +736,31 @@
   }
 
   // ---------- Dokunmatik sürükle-bırak ----------
-  // Kart: yukarı doğru çekince sürüklenir (yana kaydırma tepsiyi kaydırır).
-  // Blok: kısa bir süre basılı tutunca sürüklenir (hemen kaydırınca sayfa kayar).
+  // Kart ve blok: kısa bir süre basılı tutunca sürüklenir (hemen kaydırınca tepsi/sayfa normal kayar).
+  // Kart tutulunca tepsi aşağı kapanır, yalnız çizelge görünür; bırakınca tepsi geri açılır.
   // Bloğu tepsiye geri bırakmak plandan kaldırır.
   let touchDrag = null;
   let suppressClickUntil = 0;
   let autoScrollTimer = null;
-  const LONG_PRESS_MS = 260;
+  const LONG_PRESS_MS = 220;
 
-  function attachTouchDrag(el, getInfo, longPress) {
+  // Sürükleme sürerken tarayıcı sayfayı kaydırmasın (öğenin kendi dinleyicisi en erken çalışır)
+  function blockScroll(e) {
+    if (touchDrag && touchDrag.active && e.cancelable) e.preventDefault();
+  }
+
+  function attachTouchDrag(el, getInfo) {
     el.addEventListener('touchstart', (e) => {
       if (simulating || e.touches.length !== 1 || e.target.closest('.block-remove')) return;
       const info = getInfo();
       if (!info) return;
       const t0 = e.touches[0];
-      touchDrag = { ...info, el, longPress, x0: t0.clientX, y0: t0.clientY, x: t0.clientX, y: t0.clientY, active: false };
-      if (longPress) {
-        touchDrag.timer = setTimeout(() => {
-          if (touchDrag && !touchDrag.active) beginTouchDrag();
-        }, LONG_PRESS_MS);
-      }
+      touchDrag = { ...info, el, x0: t0.clientX, y0: t0.clientY, x: t0.clientX, y: t0.clientY, dirY: 0, active: false };
+      touchDrag.timer = setTimeout(() => {
+        if (touchDrag && !touchDrag.active) beginTouchDrag();
+      }, LONG_PRESS_MS);
     }, { passive: true });
+    el.addEventListener('touchmove', blockScroll, { passive: false });
   }
 
   function beginTouchDrag() {
@@ -773,6 +777,8 @@
     document.body.appendChild(d.ghost);
     document.body.classList.add('touch-dragging', d.uid ? 'dragging-block' : 'dragging-card');
     if (d.uid) d.el.classList.add('dragging');
+    // Kart tutulunca tepsi kapanır, çizelge tüm ekranı kullanır
+    else if (isMobile()) { d.reopenTray = !document.body.classList.contains('tray-collapsed'); ui.setTray(false); }
     if (navigator.vibrate) navigator.vibrate(12);
     OG.sfx('select');
     moveTouchDrag(d.x, d.y);
@@ -786,6 +792,7 @@
 
   function moveTouchDrag(x, y) {
     const d = touchDrag;
+    if (y !== d.y) d.dirY = Math.sign(y - d.y);
     d.x = x;
     d.y = y;
     // Sürüklenen kart ekranın dışına taşmasın: yerleştir, ölç, taşıyorsa içeri it
@@ -810,8 +817,9 @@
     const deck = document.querySelector('.deck-panel');
     const bottomEdge = isMobile() ? deck.getBoundingClientRect().top : innerHeight;
     let dy = 0;
-    if (d.y < 110) dy = -Math.ceil((110 - d.y) / 8);
-    else if (d.y > bottomEdge - 50 && d.y < bottomEdge + 10) dy = Math.ceil((d.y - (bottomEdge - 50)) / 6);
+    // Yalnız parmak o kenara doğru gidiyorsa ya da duruyorsa kaydır (yukarı çekerken alt kenar tetiklenmesin)
+    if (d.y < 110 && d.dirY <= 0) dy = -Math.ceil((110 - d.y) / 8);
+    else if (d.y > bottomEdge - 50 && d.y < bottomEdge + 10 && d.dirY >= 0) dy = Math.ceil((d.y - (bottomEdge - 50)) / 6);
     if (!dy) return;
     const sc = els.dayScroll;
     if (sc.scrollHeight > sc.clientHeight + 2) sc.scrollTop += dy;
@@ -834,6 +842,7 @@
     deck.classList.remove('drop-remove');
     hideGhost();
     drag = null;
+    if (d.reopenTray) setTimeout(() => ui.setTray(true), 250);
     if (cancel) return;
     if (d.uid && isMobile() && overEl(deck, d.x, d.y)) {
       OG.removeItem(d.uid);
@@ -853,18 +862,9 @@
     const dx = t.clientX - d.x0;
     const dy = t.clientY - d.y0;
     if (!d.active) {
-      if (d.longPress) {
-        // Basılı tutmadan kaydırırsa sayfa kaysın
-        if (Math.hypot(dx, dy) > 10) { clearTimeout(d.timer); touchDrag = null; }
-        return;
-      }
-      // Kart: dikey hareket bizim (sayfa kaymasın; tarayıcı kaydırmayı ilk harekette başlatır), yatay hareket tepsiyi kaydırır
-      if (Math.abs(dy) >= Math.abs(dx) && e.cancelable) e.preventDefault();
-      // Yukarı çekiş sürüklemeyi başlatır, aşağı çekiş tepsiyi kapatır
-      if (dy < -10 && Math.abs(dy) > Math.abs(dx)) { d.x = t.clientX; d.y = t.clientY; beginTouchDrag(); }
-      else if (dy > 14 && Math.abs(dy) > Math.abs(dx)) { touchDrag = null; ui.setTray(false); return; }
-      else if (Math.abs(dx) > 10) { touchDrag = null; return; }
-      else return;
+      // Basılı tutmadan kaydırırsa bu bir kaydırmadır: tepsi ya da sayfa normal kaysın
+      if (Math.hypot(dx, dy) > 10) { clearTimeout(d.timer); touchDrag = null; }
+      return;
     }
     if (e.cancelable) e.preventDefault();
     moveTouchDrag(t.clientX, t.clientY);
@@ -911,7 +911,7 @@
         if (blk) {
           const item = OG.state.schedule.find((i) => String(i.uid) === blk.dataset.uid);
           if (item) openCardDetail(OG.TASK_MAP[item.taskId], blk);
-        } else say(isMobile() ? 'Alttaki kartlardan birini tutup yukarı, çizelgeye sürükle 👇' : 'Elindeki bir kartı tut ve çizelgeye sürükleyip bırak 👈');
+        } else say(isMobile() ? 'Alttaki kartlardan birine basılı tut, sonra çizelgeye sürükle 👇' : 'Elindeki bir kartı tut ve çizelgeye sürükleyip bırak 👈');
         return;
       }
       tryPlace(selectedTaskId, slotFromEvent(e));
@@ -1005,7 +1005,7 @@
           drag = null;
           hideGhost();
         });
-        attachTouchDrag(block, () => ({ taskId: item.taskId, uid: item.uid, slot: item.slot }), true);
+        attachTouchDrag(block, () => ({ taskId: item.taskId, uid: item.uid, slot: item.slot }));
         block.querySelector('.block-remove').addEventListener('click', (e) => {
           e.stopPropagation();
           if (simulating) return;

@@ -49,7 +49,7 @@ The game opens in English the first time. Your choice is saved in the browser, t
 
 | | Desktop | Phone |
 |---|---|---|
-| Place a card | Drag the card onto the schedule | Drag the card up from the bottom tray onto the schedule |
+| Place a card | Drag the card onto the schedule | Press and hold the card; the tray slides away, then drag it onto the schedule |
 | Move a block | Drag the block | Press and hold the block, then drag |
 | Remove from plan | ✕ on the block | Drop the block back on the tray, or ✕ |
 | Card details | Click the card | Tap the card |

@@ -26,8 +26,8 @@
         '🗓️ This is <b>your day</b>. 🔒 Locked blocks are your <b>fixed schedule</b>: set times that happen on their own. You can’t move them, but they carry no penalty.') },
     { target: '.card[data-id="ogle"]', outline: true,
       text: mobile()
-        ? OG.t('👉 Hadi deneyelim: aşağıdaki <b>Öğle Yemeği</b> kartını tut, <b>yukarı çek</b> ve çizelgede <b>12:00</b> satırına bırak. Yerleşen bir bloğu taşımak için üstüne <b>basılı tut</b>.',
-        '👉 Let’s try it: hold the <b>Lunch</b> card below, <b>pull it up</b> and drop it on the <b>12:00</b> row. To move a placed block, <b>press and hold</b> it.')
+        ? OG.t('👉 Hadi deneyelim: aşağıdaki <b>Öğle Yemeği</b> kartına <b>basılı tut</b>, tepsi kapanınca çizelgede <b>12:00</b> satırına sürükleyip bırak. Yerleşen bir bloğu taşımak için üstüne <b>basılı tut</b>.',
+        '👉 Let’s try it: <b>press and hold</b> the <b>Lunch</b> card below; when the tray slides away, drag it to the <b>12:00</b> row. To move a placed block, <b>press and hold</b> it.')
         : OG.t('👉 Hadi deneyelim: <b>Öğle Yemeği</b> kartını tut ve çizelgede <b>12:00</b> satırına <b>sürükleyip bırak</b>. Yemekler kendi saat aralığında bonus verir.',
         '👉 Let’s try it: grab the <b>Lunch</b> card and <b>drag and drop</b> it on the <b>12:00</b> row. Meals give a bonus in their own time window.'),
       wait: (ev, id) => ev === 'place' && id === 'ogle', skipIf: () => OG.remainingUses('ogle') <= 0 },

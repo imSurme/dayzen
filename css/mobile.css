@@ -139,3 +139,14 @@ body.touch-dragging .deck {
   overscroll-behavior: none;
   touch-action: none;
 }
+
+@media (max-width: 760px) {
+  /* Basılı tutunca metin seçimi ve iOS menüsü açılmasın */
+  .deck .card, .block { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  /* Kart sürüklenirken tepsi kapanır ama sayfa boyu değişmesin (kaydırma zıplamasın) */
+  body.dragging-card.tray-collapsed[data-mtab='day'] { padding-bottom: calc(var(--tabbar-h) + var(--tray-h) + 12px); }
+}
+@media (max-width: 760px) {
+  /* Kart taşınırken tepsi tamamen aşağı iner: ekranda yalnız çizelge kalır */
+  body.dragging-card[data-mtab='day'] .deck-panel { transform: translateY(calc(100% + var(--tabbar-h))); }
+}
